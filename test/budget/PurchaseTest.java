@@ -23,9 +23,9 @@ public class PurchaseTest {
 
         Purchase purchase = new Purchase("item", 10.75);
         purchase.setName("Apple");
-        purchase.setAmount(43.17);
+        purchase.setAmount(43.10);
 
         assertEquals("Apple", purchase.getName());
-        assertEquals(43.17, purchase.getAmount(), 0.001);
+        assertEquals(43.10, purchase.getAmount());
     }
 }

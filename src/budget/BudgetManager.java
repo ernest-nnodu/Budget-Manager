@@ -25,7 +25,7 @@ public class BudgetManager {
     //define method to display purchase list
     public void displayPurchases() {
         purchases.forEach(e ->
-                System.out.println(e.getName() + " $" + e.getAmount()));
+                System.out.printf("%s%2f", e.getName() + "$", e.getAmount()));
     }
 
     //define method to calculate total amount of purchase list

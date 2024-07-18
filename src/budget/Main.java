@@ -2,6 +2,7 @@ package budget;
 
 public class Main {
     public static void main(String[] args) {
-        // write your code here
+        BudgetManagerApp budgetManagerApp = new BudgetManagerApp();
+        budgetManagerApp.start();
     }
 }

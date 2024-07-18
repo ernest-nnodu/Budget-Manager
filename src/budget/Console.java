@@ -4,15 +4,18 @@ import java.util.Scanner;
 
 public class Console {
 
-    private Scanner scanner;
+    private final Scanner scanner;
 
     public Console() {
         scanner = new Scanner(System.in);
     }
 
-    public String readString(String prompt) {
-        System.out.println(prompt);
+    public String readString() {
+        String input = null;
 
-        return scanner.nextLine();
+        if (scanner.hasNextLine()) {
+            input = scanner.nextLine();
+        }
+        return input;
     }
 }
