@@ -2,7 +2,7 @@ package budget;
 
 public class BudgetManagerApp {
 
-    private final BudgetManager budgetManager;
+    /*private final BudgetManager budgetManager;
     private final Console console;
 
     public BudgetManagerApp() {
@@ -36,5 +36,5 @@ public class BudgetManagerApp {
     private void processPurchases() {
         budgetManager.displayPurchases();
         System.out.println("\nTotal: $" + budgetManager.calculateTotal());
-    }
+    }*/
 }

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class BudgetManager {
 
-    //define fields
+    /*//define fields
     List<Purchase> purchases;
 
     //define constructor
@@ -36,5 +36,5 @@ public class BudgetManager {
             total += purchase.getAmount();
         }
         return total;
-    }
+    }*/
 }

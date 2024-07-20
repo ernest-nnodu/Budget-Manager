@@ -1,15 +1,21 @@
 package budget;
 
-public class Purchase {
+public class Transaction {
 
     //Define fields
     private String name;
     private double amount;
+    private TransactionType type;
 
-    //Define constructor
+    //Define constructors
 
-    public Purchase(String name, double amount) {
+    public Transaction() {
+
+    }
+
+    public Transaction(String name, TransactionType type, double amount) {
         this.name = name;
+        this.type = type;
         this.amount = amount;
     }
 
@@ -29,5 +35,13 @@ public class Purchase {
 
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    public TransactionType getType() {
+        return type;
+    }
+
+    public void setType(TransactionType type) {
+        this.type = type;
     }
 }
