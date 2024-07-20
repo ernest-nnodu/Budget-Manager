@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class BudgetManagerTest {
 
-   /* private BudgetManager budgetManager;
+   private BudgetManager budgetManager;
 
     @Before
     public void setUp() {
@@ -20,7 +20,7 @@ public class BudgetManagerTest {
     @Test
     @DisplayName("Budget Manager Initialised successfully")
     public void budgetManagerInitTest() {
-        List<Purchase> purchases = budgetManager.getPurchases();
+        List<Transaction> purchases = budgetManager.getPurchases();
 
         assertEquals(0, purchases.size());
     }
@@ -28,11 +28,11 @@ public class BudgetManagerTest {
     @Test
     @DisplayName("Purchases added successfully")
     public void addPurchasesTest() {
-        budgetManager.addPurchase(new Purchase("item1", 23.50));
-        budgetManager.addPurchase(new Purchase("item2", 67.0));
-        budgetManager.addPurchase(new Purchase("item3", 509));
+        budgetManager.addPurchase("item1", 23.50);
+        budgetManager.addPurchase("item2", 67.0);
+        budgetManager.addPurchase("item3", 509);
 
-        List<Purchase> purchases = budgetManager.getPurchases();
+        List<Transaction> purchases = budgetManager.getPurchases();
 
         assertEquals(3, purchases.size());
         assertEquals("item1", purchases.get(0).getName());
@@ -45,11 +45,31 @@ public class BudgetManagerTest {
 
     @Test
     @DisplayName("Calculate total amount of purchases")
-    public void calculateTotalAmountTest() {
-        budgetManager.addPurchase(new Purchase("item1", 23.50));
-        budgetManager.addPurchase(new Purchase("item2", 67.0));
-        budgetManager.addPurchase(new Purchase("item3", 509));
+    public void calculateExpenseTotalTest() {
+        budgetManager.addPurchase("item1", 23.50);
+        budgetManager.addPurchase("item2", 67.0);
+        budgetManager.addPurchase("item3", 509);
 
-        assertEquals(599.50, budgetManager.calculateTotal());
-    }*/
+        assertEquals(599.50, budgetManager.calculateExpenseTotal());
+    }
+
+    @Test
+    @DisplayName("Total income accurate")
+    public void totalIncomeTest() {
+        budgetManager.addIncome("Income", 1000);
+        budgetManager.addIncome("Income", 100.78);
+
+        assertEquals(1100.78, budgetManager.getTotalIncome());
+    }
+
+    @Test
+    @DisplayName("Calculate balance accurately")
+    public void calculateBalanceTest() {
+        budgetManager.addIncome("Income", 1000);
+        budgetManager.addPurchase("item1", 23.50);
+        budgetManager.addPurchase("item2", 67.0);
+        budgetManager.addPurchase("item3", 509);
+
+        assertEquals(400.50, budgetManager.calculateBalance());
+    }
 }

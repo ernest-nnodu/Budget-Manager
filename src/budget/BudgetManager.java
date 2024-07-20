@@ -5,36 +5,62 @@ import java.util.List;
 
 public class BudgetManager {
 
-    /*//define fields
-    List<Purchase> purchases;
+    //define fields
+    List<Transaction> transactions;
+    private double totalIncome;
 
     //define constructor
     public BudgetManager() {
-        purchases = new ArrayList<>();
+        transactions = new ArrayList<>();
+        totalIncome = 0;
     }
 
-    //define method to add purchase item to the list
-    public void addPurchase(Purchase purchase) {
-        purchases.add(purchase);
+    public double getTotalIncome() {
+        return this.totalIncome;
     }
 
-    public List<Purchase> getPurchases() {
-        return purchases;
+    //define method to add expense to transaction list
+    public void addPurchase(String name, double amount) {
+        Transaction purchase = new Transaction(name, TransactionType.EXPENSE, amount);
+        transactions.add(purchase);
+    }
+
+    //define method to add income to transaction list
+    public void addIncome(String name, double amount) {
+        Transaction income = new Transaction(name, TransactionType.INCOME, amount);
+        transactions.add(income);
+        totalIncome += amount;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
     }
 
     //define method to display purchase list
-    public void displayPurchases() {
-        purchases.forEach(e ->
-                System.out.printf("%s%2f", e.getName() + "$", e.getAmount()));
+    public List<Transaction> getPurchases() {
+        List<Transaction> purchases = new ArrayList<>();
+
+        for (Transaction transaction : transactions) {
+            if (transaction.getType() == TransactionType.EXPENSE) {
+                purchases.add(transaction);
+            }
+        }
+        return purchases;
     }
 
     //define method to calculate total amount of purchase list
-    public double calculateTotal() {
+    public double calculateExpenseTotal() {
         double total = 0;
 
-        for (Purchase purchase : purchases) {
-            total += purchase.getAmount();
+        for (Transaction transaction : transactions) {
+            if (transaction.getType() == TransactionType.EXPENSE) {
+                total += transaction.getAmount();
+            }
         }
         return total;
-    }*/
+    }
+
+    public double calculateBalance() {
+        return totalIncome - calculateExpenseTotal();
+    }
 }
