@@ -10,12 +10,23 @@ public class Console {
         scanner = new Scanner(System.in);
     }
 
-    public String readString() {
-        String input = null;
+    public int readMenuOption() {
+        return Integer.parseInt(scanner.nextLine());
+    }
 
-        if (scanner.hasNextLine()) {
-            input = scanner.nextLine();
-        }
-        return input;
+    public double readIncome(String prompt) {
+        System.out.println(prompt);
+
+        return Double.parseDouble(scanner.nextLine());
+    }
+
+    public String readPurchaseName(String prompt) {
+        System.out.println(prompt);
+        return scanner.nextLine();
+    }
+
+    public double readPurchaseAmount(String prompt) {
+        System.out.println(prompt);
+        return Double.parseDouble(scanner.nextLine());
     }
 }
