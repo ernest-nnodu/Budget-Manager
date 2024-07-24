@@ -6,6 +6,7 @@ public class Transaction {
     private String name;
     private double amount;
     private TransactionType type;
+    private PurchaseCategory category;
 
     //Define constructors
 
@@ -43,5 +44,13 @@ public class Transaction {
 
     public void setType(TransactionType type) {
         this.type = type;
+    }
+
+    public PurchaseCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(PurchaseCategory category) {
+        this.category = category;
     }
 }

@@ -29,4 +29,8 @@ public class Console {
         System.out.println(prompt);
         return Double.parseDouble(scanner.nextLine());
     }
+
+    public int readPurchaseType() {
+        return Integer.parseInt(scanner.nextLine());
+    }
 }

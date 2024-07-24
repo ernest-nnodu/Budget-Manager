@@ -28,9 +28,9 @@ public class BudgetManagerTest {
     @Test
     @DisplayName("Purchases added successfully")
     public void addPurchasesTest() {
-        budgetManager.addPurchase("item1", 23.50);
-        budgetManager.addPurchase("item2", 67.0);
-        budgetManager.addPurchase("item3", 509);
+        budgetManager.addPurchase("item1", 23.50, PurchaseCategory.OTHER);
+        budgetManager.addPurchase("item2", 67.0, PurchaseCategory.OTHER);
+        budgetManager.addPurchase("item3", 509, PurchaseCategory.OTHER);
 
         List<Transaction> purchases = budgetManager.getPurchases();
 
@@ -46,9 +46,9 @@ public class BudgetManagerTest {
     @Test
     @DisplayName("Calculate total amount of purchases")
     public void calculateExpenseTotalTest() {
-        budgetManager.addPurchase("item1", 23.50);
-        budgetManager.addPurchase("item2", 67.0);
-        budgetManager.addPurchase("item3", 509);
+        budgetManager.addPurchase("item1", 23.50, PurchaseCategory.OTHER);
+        budgetManager.addPurchase("item2", 67.0, PurchaseCategory.OTHER);
+        budgetManager.addPurchase("item3", 509, PurchaseCategory.OTHER);
 
         assertEquals(599.50, budgetManager.calculateExpenseTotal());
     }
@@ -66,10 +66,21 @@ public class BudgetManagerTest {
     @DisplayName("Calculate balance accurately")
     public void calculateBalanceTest() {
         budgetManager.addIncome("Income", 1000);
-        budgetManager.addPurchase("item1", 23.50);
-        budgetManager.addPurchase("item2", 67.0);
-        budgetManager.addPurchase("item3", 509);
+        budgetManager.addPurchase("item1", 23.50, PurchaseCategory.OTHER);
+        budgetManager.addPurchase("item2", 67.0, PurchaseCategory.OTHER);
+        budgetManager.addPurchase("item3", 509, PurchaseCategory.OTHER);
 
         assertEquals(400.50, budgetManager.calculateBalance());
+    }
+
+    public void calculateExpenseTotalByCategoryTest() {
+
+        budgetManager.addPurchase("item1", 23.50, PurchaseCategory.OTHER);
+        budgetManager.addPurchase("item2", 67.0, PurchaseCategory.OTHER);
+        budgetManager.addPurchase("item3", 509, PurchaseCategory.OTHER);
+        budgetManager.addPurchase("item4", 309, PurchaseCategory.FOOD);
+        budgetManager.addPurchase("item5", 709, PurchaseCategory.FOOD);
+
+        assertEquals(599.50, budgetManager.calculateExpenseTotalByCategory(PurchaseCategory.OTHER));
     }
 }
