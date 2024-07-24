@@ -20,8 +20,9 @@ public class BudgetManager {
     }
 
     //define method to add expense to transaction list
-    public void addPurchase(String name, double amount) {
+    public void addPurchase(String name, double amount, PurchaseCategory category) {
         Transaction purchase = new Transaction(name, TransactionType.EXPENSE, amount);
+        purchase.setCategory(category);
         transactions.add(purchase);
     }
 
@@ -38,26 +39,34 @@ public class BudgetManager {
 
     //define method to display purchase list
     public List<Transaction> getPurchases() {
-        List<Transaction> purchases = new ArrayList<>();
 
-        for (Transaction transaction : transactions) {
-            if (transaction.getType() == TransactionType.EXPENSE) {
-                purchases.add(transaction);
-            }
-        }
-        return purchases;
+        return transactions.stream()
+                .filter(e -> e.getType() == TransactionType.EXPENSE)
+                .toList();
+    }
+
+    public List<Transaction> getPurchasesByCategory(PurchaseCategory category) {
+
+        return transactions.stream()
+                .filter(e -> e.getCategory() == category)
+                .toList();
     }
 
     //define method to calculate total amount of purchase list
     public double calculateExpenseTotal() {
-        double total = 0;
 
-        for (Transaction transaction : transactions) {
-            if (transaction.getType() == TransactionType.EXPENSE) {
-                total += transaction.getAmount();
-            }
-        }
-        return total;
+        return transactions.stream()
+                .filter(e -> e.getType() == TransactionType.EXPENSE)
+                .mapToDouble(Transaction::getAmount)
+                .sum();
+    }
+
+    public double calculateExpenseTotalByCategory(PurchaseCategory category) {
+
+        return transactions.stream()
+                .filter(e -> e.getType() == TransactionType.EXPENSE && e.getCategory() == category)
+                .mapToDouble(Transaction::getAmount)
+                .sum();
     }
 
     public double calculateBalance() {

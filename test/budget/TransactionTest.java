@@ -26,10 +26,12 @@ public class TransactionTest {
         purchase.setName("Apple");
         purchase.setAmount(43.10);
         purchase.setType(TransactionType.EXPENSE);
+        purchase.setCategory(PurchaseCategory.FOOD);
 
         assertEquals("Apple", purchase.getName());
         assertEquals(43.10, purchase.getAmount());
         assertEquals(TransactionType.EXPENSE, purchase.getType());
+        assertEquals(PurchaseCategory.FOOD, purchase.getCategory());
     }
 
     @Test
