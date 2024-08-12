@@ -2,7 +2,10 @@ import org.hyperskill.hstest.stage.StageTest;
 import org.hyperskill.hstest.testcase.CheckResult;
 import org.hyperskill.hstest.testcase.TestCase;
 
+<<<<<<< HEAD
 import java.io.File;
+=======
+>>>>>>> 4abcd1c195b717dfa90bb43f972be462cd438a41
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,6 +33,7 @@ public class BudgetManagerTest extends StageTest<String> {
                 .setCheckFunc(BudgetManagerTest::test4),
 
             new TestCase<String>()
+<<<<<<< HEAD
                 .setInput("1\n1000\n2\n" +
                     "1\nAlmond 250g\n35.43\n" +
                     "1\nMilk\n3.50\n" +
@@ -53,6 +57,15 @@ public class BudgetManagerTest extends StageTest<String> {
             new TestCase<String>()
                 .setInput("6\n4\n3\n5\n1\n6\n0")
                 .setCheckFunc(BudgetManagerTest::test6)
+=======
+                .setInput("1\n600\n2\n" +
+                    "1\nMilk\n3.5\n" +
+                    "2\nMen's Dual Defense Crew Socks 12 Pairs\n13\n" +
+                    "3\nCinema\n8.73\n" +
+                    "5\n3\n1\n2\n3\n5\n6\n0")
+                .setCheckFunc(BudgetManagerTest::test5)
+
+>>>>>>> 4abcd1c195b717dfa90bb43f972be462cd438a41
         );
     }
 
@@ -115,6 +128,7 @@ public class BudgetManagerTest extends StageTest<String> {
         }
 
         return new CheckResult(true);
+
     }
 
 
@@ -159,13 +173,20 @@ public class BudgetManagerTest extends StageTest<String> {
 
         String[] blocks = reply.split("\n(\n+)?\n");
 
+<<<<<<< HEAD
         if (blocks.length != 12) {
             return new CheckResult(false,
                 "Your program shows wrong blocks of output. Expected: 12\n" +
+=======
+        if (blocks.length != 22) {
+            return new CheckResult(false,
+                "Your program shows wrong blocks of output. Expected: 22\n" +
+>>>>>>> 4abcd1c195b717dfa90bb43f972be462cd438a41
                     "You have: " + blocks.length + "\n" +
                     "Make sure that you print an empty line after each chosen action");
         }
 
+<<<<<<< HEAD
         String balanceAfterDownloadingPurchases = blocks[3];
 
         if (!balanceAfterDownloadingPurchases.replace(",", ".").contains("785.64")) {
@@ -207,6 +228,22 @@ public class BudgetManagerTest extends StageTest<String> {
         }
 
         String[] temp = allPurchases.split("\n");
+=======
+
+        //Food
+        String foodList = blocks[12];
+        if (!foodList.contains("Milk")) {
+            return new CheckResult(false,
+                "Wrong food purchase list.\n" +
+                    "Expected:\n" +
+                    "Food:\n" +
+                    "Milk $3.50\n" +
+                    "Total sum: $3.50\n" +
+                    "Your output:\n" + foodList);
+        }
+
+        String[] temp = foodList.split("\n");
+>>>>>>> 4abcd1c195b717dfa90bb43f972be462cd438a41
         String totalSum = temp[temp.length - 1];
 
         Pattern doublePattern = Pattern.compile("\\d+[,.]\\d+");
@@ -214,12 +251,19 @@ public class BudgetManagerTest extends StageTest<String> {
 
         if (!matcher.find()) {
             return new CheckResult(false,
+<<<<<<< HEAD
                 "Total sum of all purchases is wrong. Expected:\n" +
                     "Total sum: $214.36\n" +
+=======
+                "Your food total sum is wrong!\n" +
+                    "Expected:\n" +
+                    "Total sum: $3.50\n" +
+>>>>>>> 4abcd1c195b717dfa90bb43f972be462cd438a41
                     "Your output:\n" +
                     totalSum);
         }
 
+<<<<<<< HEAD
         double allTotalSum = Double.parseDouble(matcher.group());
 
         if (Math.abs(allTotalSum - 214.36) > 0.0001) {
@@ -269,8 +313,119 @@ public class BudgetManagerTest extends StageTest<String> {
 
         if (Math.abs(foodTotalSum - 90.71) > 0.0001) {
             return new CheckResult(false,
+=======
+        double foodTotalSum = Double.parseDouble(matcher.group());
+
+        if (Math.abs(foodTotalSum - 3.5) > 0.0001) {
+            return new CheckResult(false,
+>>>>>>> 4abcd1c195b717dfa90bb43f972be462cd438a41
                 "Your food total sum is wrong!");
         }
+
+        //Clothes
+        String clothesList = blocks[14];
+
+        if (!clothesList.contains("Men's Dual Defense Crew Socks 12 Pairs")) {
+            return new CheckResult(false,
+                "Wrong clothes purchase list.\nExpected:\n" +
+                    "Clothes:\n" +
+                    "Men's Dual Defense Crew Socks 12 Pairs $13.00\n" +
+                    "Total sum: $13.00\n" +
+                    "Your output:\n" + clothesList);
+        }
+
+        temp = clothesList.split("\n");
+        totalSum = temp[temp.length - 1];
+
+        matcher = doublePattern.matcher(totalSum);
+
+        if (!matcher.find()) {
+            return new CheckResult(false,
+                "Your clothes total sum is wrong!\n" +
+                    "Expected:\n" +
+                    "Total sum: $13.00\n" +
+                    "Your output:\n" +
+                    totalSum);
+        }
+
+        double clothesTotalSum = Double.parseDouble(matcher.group());
+
+        if (Math.abs(clothesTotalSum - 13) > 0.0001) {
+            return new CheckResult(false,
+                "Your clothes total sum is wrong!");
+        }
+
+        //Entertainment
+        String entertainmentList = blocks[16];
+
+        if (!entertainmentList.contains("Cinema")) {
+            return new CheckResult(false,
+                "Wrong entertainment purchase list.\nExpected:\n" +
+                    "Entertainment:\n" +
+                    "Cinema $8.73\n" +
+                    "Total sum: $8.73\n" +
+                    "Your output:\n" + entertainmentList);
+        }
+
+        temp = entertainmentList.split("\n");
+        totalSum = temp[temp.length - 1];
+
+        matcher = doublePattern.matcher(totalSum);
+
+        if (!matcher.find()) {
+            return new CheckResult(false,
+                "Your entertainment total sum is wrong!\n" +
+                    "Expected:\n" +
+                    "Total sum: $8.73\n" +
+                    "Your output:\n" +
+                    totalSum);
+        }
+
+        double entertainmentTotalSum = Double.parseDouble(matcher.group());
+
+        if (Math.abs(entertainmentTotalSum - 8.73) > 0.0001) {
+            return new CheckResult(false,
+                "Your entertainment total sum is wrong!");
+        }
+
+        //All
+        String allList = blocks[18];
+
+        if (!allList.contains("Milk")
+            || !allList.contains("Men's Dual Defense Crew Socks 12 Pairs")
+            || !allList.contains("Cinema")) {
+            return new CheckResult(false,
+                "Wrong all purchase list.\n" +
+                    "Expected:\n" +
+                    "All:\n" +
+                    "Milk $3.50\n" +
+                    "Men's Dual Defense Crew Socks 12 Pairs $13.00\n" +
+                    "Cinema $8.73\n" +
+                    "Total sum: $25.23" +
+                    "Your output:\n" + allList);
+        }
+
+        temp = allList.split("\n");
+        totalSum = temp[temp.length - 1];
+
+        matcher = doublePattern.matcher(totalSum);
+
+        if (!matcher.find()) {
+            return new CheckResult(false,
+                "Your all total sum is wrong!\n" +
+                    "Expected:\n" +
+                    "Total sum: $25.23\n" +
+                    "Your output:\n" +
+                    totalSum);
+        }
+
+        double allTotalSum = Double.parseDouble(matcher.group());
+
+        if (Math.abs(allTotalSum - 25.23) > 0.0001) {
+            return new CheckResult(false,
+                "Your all total sum is wrong!");
+        }
+
 
         return new CheckResult(true);
     }

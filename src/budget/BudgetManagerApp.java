@@ -113,6 +113,7 @@ public class BudgetManagerApp {
     private void listPurchases() {
 
         while (true) {
+            System.out.println();
             displayListOfPurchaseMenu();
 
             int purchaseType = console.readPurchaseType();
@@ -140,6 +141,7 @@ public class BudgetManagerApp {
 
             for (Transaction purchase : purchases) {
                 System.out.println(purchase.getName() + " $" + String.format("%.2f", purchase.getAmount()));
+                System.out.println(purchase.getName() + " $" + purchase.getAmount());
             }
 
             if (category == PurchaseCategory.ALL) {
