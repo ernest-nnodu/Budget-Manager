@@ -1,15 +1,20 @@
 package budget;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class BudgetManagerApp {
 
-    private final BudgetManager budgetManager;
+    private BudgetManager budgetManager;
     private final Console console;
+    private final FileHandler fileHandler;
 
     public BudgetManagerApp() {
         budgetManager = new BudgetManager();
         console = new Console();
+        fileHandler = new FileHandler();
     }
 
     public void start() {
@@ -31,6 +36,8 @@ public class BudgetManagerApp {
         System.out.println("2) Add purchase");
         System.out.println("3) Show list of purchases");
         System.out.println("4) Balance");
+        System.out.println("5) Save");
+        System.out.println("6) Load");
         System.out.println("0) Exit");
     }
 
@@ -51,8 +58,51 @@ public class BudgetManagerApp {
                 break;
             case 4:
                 displayBalance();
+                break;
+            case 5:
+                savePurchases();
+                break;
+            case 6:
+                loadPurchases();
         }
         return true;
+    }
+
+    private void loadPurchases() {
+
+        java.util.Locale.setDefault(Locale.US);
+        List<String> loadedData = fileHandler.load();
+        Double incomeAmount;
+        List<Transaction> purchases = new ArrayList<>();
+        budgetManager = new BudgetManager();
+
+        for (String data : loadedData) {
+            if (data.equals(fileHandler.getSeparator())) {
+                continue;
+            } else if (data.startsWith("Income")) {
+                incomeAmount = Double.parseDouble(data.split(fileHandler.getDelimiter())[1]);
+                budgetManager.addIncome("income", incomeAmount);
+            } else {
+                String[] transactionData = data.split(fileHandler.getDelimiter());
+                String name = transactionData[0];
+                double amount = Double.parseDouble(transactionData[3]);
+                budgetManager.addPurchase(name, amount, PurchaseCategory.valueOf(transactionData[1]));
+            }
+        }
+
+        System.out.println();
+        System.out.println("Purchases were loaded!");
+    }
+
+    private void savePurchases() {
+        String filename = "purchases.txt";
+        List<Transaction> purchases = budgetManager.getPurchases();
+        double income = budgetManager.getTotalIncome();
+
+        fileHandler.save(filename, purchases, income);
+
+        System.out.println();
+        System.out.println("Purchases were saved!");
     }
 
     private void displayBalance() {
@@ -63,7 +113,6 @@ public class BudgetManagerApp {
     private void listPurchases() {
 
         while (true) {
-            System.out.println();
             displayListOfPurchaseMenu();
 
             int purchaseType = console.readPurchaseType();
@@ -81,6 +130,7 @@ public class BudgetManagerApp {
             }
 
             if (purchases.isEmpty()) {
+                System.out.println();
                 System.out.println("The purchase list is empty");
                 return;
             }
@@ -89,7 +139,7 @@ public class BudgetManagerApp {
             System.out.println(category.name());
 
             for (Transaction purchase : purchases) {
-                System.out.println(purchase.getName() + " $" + purchase.getAmount());
+                System.out.println(purchase.getName() + " $" + String.format("%.2f", purchase.getAmount()));
             }
 
             if (category == PurchaseCategory.ALL) {
