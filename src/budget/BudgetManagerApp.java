@@ -1,9 +1,7 @@
 package budget;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+import java.util.function.DoubleUnaryOperator;
 
 public class BudgetManagerApp {
 
@@ -38,6 +36,7 @@ public class BudgetManagerApp {
         System.out.println("4) Balance");
         System.out.println("5) Save");
         System.out.println("6) Load");
+        System.out.println("7) Analyze (Sort)");
         System.out.println("0) Exit");
     }
 
@@ -64,15 +63,144 @@ public class BudgetManagerApp {
                 break;
             case 6:
                 loadPurchases();
+                break;
+            case 7:
+                analyzePurchases();
         }
         return true;
     }
 
+    private void analyzePurchases() {
+
+        while (true) {
+            System.out.println();
+            printSortingMenu();
+            int sortingType = console.readMenuOption();
+
+            switch (sortingType) {
+                case 1:
+                    sortAllPurchases();
+                    break;
+                case 2:
+                    sortPurchasesByType();
+                    break;
+                case 3:
+                    sortPurchasesBySpecificType();
+                    break;
+                case 4:
+                    return;
+            }
+        }
+    }
+
+    private void sortPurchasesBySpecificType() {
+
+        displayTypeOfPurchaseToSortMenu();
+        int typeOfPurchase = console.readMenuOption();
+        List<Transaction> purchases = new ArrayList<>();
+        String purchaseType = "";
+
+        switch (typeOfPurchase) {
+            case 1:
+                purchases = budgetManager.getPurchasesByCategory(PurchaseCategory.FOOD);
+                purchaseType = "Food";
+                break;
+            case 2:
+                purchases = budgetManager.getPurchasesByCategory(PurchaseCategory.CLOTHES);
+                purchaseType = "Clothes";
+                break;
+            case 3:
+                purchases = budgetManager.getPurchasesByCategory(PurchaseCategory.ENTERTAINMENT);
+                purchaseType = "Entertainment";
+                break;
+            case 4:
+                purchases = budgetManager.getPurchasesByCategory(PurchaseCategory.OTHER);
+                purchaseType = "Other";
+                break;
+        }
+
+        System.out.println();
+
+        if (purchases.isEmpty()) {
+            System.out.println("The purchase list is empty!");
+            return;
+        }
+
+        List<Transaction> sortedPurchases = new ArrayList<>(purchases);
+        sortedPurchases.sort(Comparator.comparingDouble(Transaction::getAmount)
+                .reversed());
+
+        System.out.println(purchaseType + ":");
+
+        for (Transaction purchase : sortedPurchases) {
+            System.out.println(purchase.getName() + " $" + String.format("%.2f", purchase.getAmount()));
+        }
+        System.out.println("Total sum: $" + String.format("%.2f", budgetManager.calculateExpenseTotal()));
+    }
+
+    private void displayTypeOfPurchaseToSortMenu() {
+        System.out.println();
+        System.out.println("Choose the type of purchase\n" +
+                "1) Food\n" +
+                "2) Clothes\n" +
+                "3) Entertainment\n" +
+                "4) Other");
+    }
+
+    private void sortPurchasesByType() {
+
+        Map<String, Double> purchasesByType = new HashMap<>();
+        purchasesByType.put("Food", budgetManager.calculateExpenseTotalByCategory(PurchaseCategory.FOOD));
+        purchasesByType.put("Entertainment", budgetManager.calculateExpenseTotalByCategory(PurchaseCategory.ENTERTAINMENT));
+        purchasesByType.put("Clothes", budgetManager.calculateExpenseTotalByCategory(PurchaseCategory.CLOTHES));
+        purchasesByType.put("Other", budgetManager.calculateExpenseTotalByCategory(PurchaseCategory.OTHER));
+
+        List<Map.Entry<String, Double>> entryList = new ArrayList<>(purchasesByType.entrySet());
+        entryList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+
+        System.out.println();
+        System.out.println("Types:");
+
+        for (Map.Entry<String, Double> entry : entryList) {
+            System.out.println(entry.getKey() + " - $" + String.format("%.2f", entry.getValue()));
+        }
+        System.out.println("Total sum: $" + String.format("%.2f", budgetManager.calculateExpenseTotal()));
+    }
+
+    private void sortAllPurchases() {
+        List<Transaction> tempPurchases = budgetManager.getPurchases();
+
+        if (tempPurchases.isEmpty()) {
+            System.out.println();
+            System.out.println("The purchase list is empty!\n");
+            return;
+        }
+
+        List<Transaction> purchases = new ArrayList<>(tempPurchases);
+        purchases.sort(Comparator.comparingDouble(Transaction::getAmount).reversed());
+
+        System.out.println();
+        System.out.println("All:");
+
+        for (Transaction purchase : purchases) {
+            System.out.println(purchase.getName() + " $" + String.format("%.2f", purchase.getAmount()));
+        }
+        System.out.println("Total sum: $" + String.format("%.2f", budgetManager.calculateExpenseTotal()));
+    }
+
+    private void printSortingMenu() {
+        System.out.println("How do you want to sort?\n" +
+                "1) Sort all purchases\n" +
+                "2) Sort by type\n" +
+                "3) Sort certain type\n" +
+                "4) Back");
+    }
+
     private void loadPurchases() {
 
-        java.util.Locale.setDefault(Locale.US);
+        //java.util.Locale.setDefault(Locale.US);
         List<String> loadedData = fileHandler.load();
-        Double incomeAmount;
+        double incomeAmount;
         List<Transaction> purchases = new ArrayList<>();
         budgetManager = new BudgetManager();
 
@@ -141,7 +269,7 @@ public class BudgetManagerApp {
 
             for (Transaction purchase : purchases) {
                 System.out.println(purchase.getName() + " $" + String.format("%.2f", purchase.getAmount()));
-                System.out.println(purchase.getName() + " $" + purchase.getAmount());
+                //System.out.println(purchase.getName() + " $" + purchase.getAmount());
             }
 
             if (category == PurchaseCategory.ALL) {

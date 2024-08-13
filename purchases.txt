@@ -1,0 +1,19 @@
+Almond 250g,FOOD,EXPENSE,35.43
+Milk,FOOD,EXPENSE,3.5
+Red Fuji Apple,FOOD,EXPENSE,5.99
+Eggs,FOOD,EXPENSE,3.99
+FIJI Natural Artesian Water,FOOD,EXPENSE,25.98
+Hershey's milk chocolate bars,FOOD,EXPENSE,8.54
+Great Value Broccoli Florets,FOOD,EXPENSE,1.0
+Keystone Ground Bee,FOOD,EXPENSE,6.28
+Gildan LT,CLOTHES,EXPENSE,8.61
+Men's Dual Defense Crew Socks 12 Pairs,CLOTHES,EXPENSE,13.0
+Wrangler Men's Stretch Cargo Pant,CLOTHES,EXPENSE,19.97
+LEGO DUPLO Town Farm Animals,ENTERTAINMENT,EXPENSE,10.1
+Cinema,ENTERTAINMENT,EXPENSE,8.73
+Skate rental,ENTERTAINMENT,EXPENSE,30.0
+Sensodyne Pronamel Toothpaste,OTHER,EXPENSE,19.74
+Chick-fil-A $10 Gift Card,OTHER,EXPENSE,10.0
+Debt,OTHER,EXPENSE,3.5
+-----
+Income,1000.0
