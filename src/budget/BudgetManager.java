@@ -2,74 +2,75 @@ package budget;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BudgetManager {
 
-    //define fields
-    List<Transaction> transactions;
+    // Fields
+    private final List<Transaction> transactions;
     private double totalIncome;
 
-    //define constructor
+    // Constructor
     public BudgetManager() {
-        transactions = new ArrayList<>();
-        totalIncome = 0;
+        this.transactions = new ArrayList<>();
+        this.totalIncome = 0;
     }
 
+    // Getters
     public double getTotalIncome() {
         return this.totalIncome;
     }
 
-    //define method to add expense to transaction list
+    public List<Transaction> getTransactions() {
+        return new ArrayList<>(this.transactions);
+    }
+
+    // Add a purchase to the transactions list
     public void addPurchase(String name, double amount, PurchaseCategory category) {
         Transaction purchase = new Transaction(name, TransactionType.EXPENSE, amount);
         purchase.setCategory(category);
-        transactions.add(purchase);
+        this.transactions.add(purchase);
     }
 
-    //define method to add income to transaction list
+    // Add income to the transactions list and update totalIncome
     public void addIncome(String name, double amount) {
         Transaction income = new Transaction(name, TransactionType.INCOME, amount);
-        transactions.add(income);
-        totalIncome += amount;
+        this.transactions.add(income);
+        this.totalIncome += amount;
     }
 
-    public List<Transaction> getTransactions() {
-        return transactions;
-    }
-
-    //define method to display purchase list
+    // Get a list of all purchases (expenses)
     public List<Transaction> getPurchases() {
-
-        return transactions.stream()
-                .filter(e -> e.getType() == TransactionType.EXPENSE)
-                .toList();
+        return this.transactions.stream()
+                .filter(transaction -> transaction.getType() == TransactionType.EXPENSE)
+                .collect(Collectors.toList());
     }
 
+    // Get a list of purchases filtered by category
     public List<Transaction> getPurchasesByCategory(PurchaseCategory category) {
-
-        return transactions.stream()
-                .filter(e -> e.getCategory() == category)
-                .toList();
+        return this.transactions.stream()
+                .filter(transaction -> transaction.getType() == TransactionType.EXPENSE && transaction.getCategory() == category)
+                .collect(Collectors.toList());
     }
 
-    //define method to calculate total amount of purchase list
+    // Calculate the total expenses
     public double calculateExpenseTotal() {
-
-        return transactions.stream()
-                .filter(e -> e.getType() == TransactionType.EXPENSE)
+        return this.transactions.stream()
+                .filter(transaction -> transaction.getType() == TransactionType.EXPENSE)
                 .mapToDouble(Transaction::getAmount)
                 .sum();
     }
 
+    // Calculate total expenses by category
     public double calculateExpenseTotalByCategory(PurchaseCategory category) {
-
-        return transactions.stream()
-                .filter(e -> e.getType() == TransactionType.EXPENSE && e.getCategory() == category)
+        return this.transactions.stream()
+                .filter(transaction -> transaction.getType() == TransactionType.EXPENSE && transaction.getCategory() == category)
                 .mapToDouble(Transaction::getAmount)
                 .sum();
     }
 
+    // Calculate the current balance
     public double calculateBalance() {
-        return totalIncome - calculateExpenseTotal();
+        return this.totalIncome - calculateExpenseTotal();
     }
 }
