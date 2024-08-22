@@ -1,9 +1,47 @@
 package budget;
 
 import java.util.*;
-import java.util.function.DoubleUnaryOperator;
 
 public class BudgetManagerApp {
+
+    private static final int BACK_OPTION = 5;
+    private static final int LIST_BACK_OPTION = 6;
+    private static final String FILENAME = "purchases.txt";
+    private static final String INCOME_LABEL = "Income";
+
+    private enum MenuOption {
+        EXIT(0),
+        ADD_INCOME(1),
+        ADD_PURCHASE(2),
+        LIST_PURCHASES(3),
+        DISPLAY_BALANCE(4),
+        SAVE_PURCHASES(5),
+        LOAD_PURCHASES(6),
+        ANALYZE_PURCHASES(7);
+
+        private final int value;
+
+        MenuOption(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static MenuOption fromInt(int option) {
+            for (MenuOption menuOption : values()) {
+                if (menuOption.value == option) {
+                    return menuOption;
+                }
+            }
+            return null;
+        }
+    }
+
+    enum PurchaseTypeMenuOption {
+
+    }
 
     private BudgetManager budgetManager;
     private final Console console;
@@ -23,272 +61,345 @@ public class BudgetManagerApp {
             exitNotSelected = processMenu();
         } while (exitNotSelected);
 
-        System.out.println();
-        System.out.println("Bye!");
+        System.out.println("\nBye!");
     }
 
     private void displayMainMenu() {
-        System.out.println();
-        System.out.println("Choose your action:");
-        System.out.println("1) Add income");
-        System.out.println("2) Add purchase");
-        System.out.println("3) Show list of purchases");
-        System.out.println("4) Balance");
-        System.out.println("5) Save");
-        System.out.println("6) Load");
-        System.out.println("7) Analyze (Sort)");
-        System.out.println("0) Exit");
+        System.out.println("""
+
+                Choose your action:
+                1) Add income
+                2) Add purchase
+                3) Show list of purchases
+                4) Balance
+                5) Save
+                6) Load
+                7) Analyze (Sort)
+                0) Exit""");
     }
 
     private boolean processMenu() {
         int userOption = console.readMenuOption();
+        MenuOption menuOption = MenuOption.fromInt(userOption);
 
-        switch (userOption) {
-            case 0:
+        if (menuOption == null) {
+            System.out.println("Incorrect input value! Please select from the provided menu");
+            return true;
+        }
+
+        switch (menuOption) {
+            case EXIT:
                 return false;
-            case 1:
+            case ADD_INCOME:
                 addIncome();
                 break;
-            case 2:
+            case ADD_PURCHASE:
                 addPurchase();
                 break;
-            case 3:
+            case LIST_PURCHASES:
                 listPurchases();
                 break;
-            case 4:
+            case DISPLAY_BALANCE:
                 displayBalance();
                 break;
-            case 5:
+            case SAVE_PURCHASES:
                 savePurchases();
                 break;
-            case 6:
+            case LOAD_PURCHASES:
                 loadPurchases();
                 break;
-            case 7:
+            case ANALYZE_PURCHASES:
                 analyzePurchases();
         }
         return true;
     }
 
     private void analyzePurchases() {
+        boolean continueAnalyzing = true;
 
-        while (true) {
-            System.out.println();
+        while (continueAnalyzing) {
             printSortingMenu();
             int sortingType = console.readMenuOption();
 
-            switch (sortingType) {
-                case 1:
-                    sortAllPurchases();
-                    break;
-                case 2:
-                    sortPurchasesByType();
-                    break;
-                case 3:
-                    sortPurchasesBySpecificType();
-                    break;
-                case 4:
-                    return;
-            }
+            continueAnalyzing = handleSortingOption(sortingType);
         }
     }
 
-    private void sortPurchasesBySpecificType() {
-
-        displayTypeOfPurchaseToSortMenu();
-        int typeOfPurchase = console.readMenuOption();
-        List<Transaction> purchases = new ArrayList<>();
-        String purchaseType = "";
-
-        switch (typeOfPurchase) {
+    private boolean handleSortingOption(int sortingType) {
+        switch (sortingType) {
             case 1:
-                purchases = budgetManager.getPurchasesByCategory(PurchaseCategory.FOOD);
-                purchaseType = "Food";
+                sortAllPurchases();
                 break;
             case 2:
-                purchases = budgetManager.getPurchasesByCategory(PurchaseCategory.CLOTHES);
-                purchaseType = "Clothes";
+                sortPurchasesByType();
                 break;
             case 3:
-                purchases = budgetManager.getPurchasesByCategory(PurchaseCategory.ENTERTAINMENT);
-                purchaseType = "Entertainment";
+                sortPurchasesBySpecificType();
                 break;
             case 4:
-                purchases = budgetManager.getPurchasesByCategory(PurchaseCategory.OTHER);
-                purchaseType = "Other";
-                break;
+                return false; // Exit the loop and stop analyzing purchases
+            default:
+                System.out.println("Invalid option. Please try again.");
         }
+        return true; // Continue analyzing purchases
+    }
 
-        System.out.println();
+    private void sortPurchasesBySpecificType() {
+        displayTypeOfPurchaseToSortMenu();
+        int typeOfPurchase = console.readMenuOption();
 
-        if (purchases.isEmpty()) {
-            System.out.println("The purchase list is empty!");
+        PurchaseCategory category = getPurchaseCategoryByType(typeOfPurchase);
+        if (category == null) {
+            System.out.println("\nInvalid option selected!");
             return;
         }
 
-        List<Transaction> sortedPurchases = new ArrayList<>(purchases);
-        sortedPurchases.sort(Comparator.comparingDouble(Transaction::getAmount)
-                .reversed());
+        List<Transaction> purchases = budgetManager.getPurchasesByCategory(category);
+        if (purchases.isEmpty()) {
+            displayEmptyPurchaseListMessage();
+            return;
+        }
 
-        System.out.println(purchaseType + ":");
+        displaySortedPurchases(purchases, category);
+        displayTotalExpense();
+    }
+
+    private PurchaseCategory getPurchaseCategoryByType(int typeOfPurchase) {
+        return switch (typeOfPurchase) {
+            case 1 -> PurchaseCategory.FOOD;
+            case 2 -> PurchaseCategory.CLOTHES;
+            case 3 -> PurchaseCategory.ENTERTAINMENT;
+            case 4 -> PurchaseCategory.OTHER;
+            default -> null;
+        };
+    }
+
+    private void displaySortedPurchases(List<Transaction> purchases, PurchaseCategory category) {
+        List<Transaction> sortedPurchases = new ArrayList<>(purchases);
+        sortedPurchases.sort(Comparator.comparingDouble(Transaction::getAmount).reversed());
+
+        System.out.println("\n" + category.name() + ":");
 
         for (Transaction purchase : sortedPurchases) {
             System.out.println(purchase.getName() + " $" + String.format("%.2f", purchase.getAmount()));
         }
-        System.out.println("Total sum: $" + String.format("%.2f", budgetManager.calculateExpenseTotal()));
     }
 
     private void displayTypeOfPurchaseToSortMenu() {
-        System.out.println();
-        System.out.println("Choose the type of purchase\n" +
-                "1) Food\n" +
-                "2) Clothes\n" +
-                "3) Entertainment\n" +
-                "4) Other");
+        System.out.println("""
+
+                Choose the type of purchase
+                1) Food
+                2) Clothes
+                3) Entertainment
+                4) Other""");
     }
 
     private void sortPurchasesByType() {
+        Map<String, Double> purchasesByType = calculateExpensesByCategory();
+        List<Map.Entry<String, Double>> sortedEntries = sortEntriesByAmountDescending(purchasesByType);
 
-        Map<String, Double> purchasesByType = new HashMap<>();
-        purchasesByType.put("Food", budgetManager.calculateExpenseTotalByCategory(PurchaseCategory.FOOD));
-        purchasesByType.put("Entertainment", budgetManager.calculateExpenseTotalByCategory(PurchaseCategory.ENTERTAINMENT));
-        purchasesByType.put("Clothes", budgetManager.calculateExpenseTotalByCategory(PurchaseCategory.CLOTHES));
-        purchasesByType.put("Other", budgetManager.calculateExpenseTotalByCategory(PurchaseCategory.OTHER));
+        displaySortedPurchasesByType(sortedEntries);
+        displayTotalExpense();
+    }
 
-        List<Map.Entry<String, Double>> entryList = new ArrayList<>(purchasesByType.entrySet());
-        entryList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
-
-        System.out.println();
-        System.out.println("Types:");
-
-        for (Map.Entry<String, Double> entry : entryList) {
+    private void displaySortedPurchasesByType(List<Map.Entry<String, Double>> sortedEntries) {
+        System.out.println("\nTypes:");
+        for (Map.Entry<String, Double> entry : sortedEntries) {
             System.out.println(entry.getKey() + " - $" + String.format("%.2f", entry.getValue()));
         }
-        System.out.println("Total sum: $" + String.format("%.2f", budgetManager.calculateExpenseTotal()));
+    }
+
+    private List<Map.Entry<String, Double>> sortEntriesByAmountDescending(Map<String, Double> purchasesByType) {
+        List<Map.Entry<String, Double>> entryList = new ArrayList<>(purchasesByType.entrySet());
+        entryList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+        return entryList;
+    }
+
+    private Map<String, Double> calculateExpensesByCategory() {
+        Map<String, Double> expensesByCategory = new HashMap<>();
+        for (PurchaseCategory category : PurchaseCategory.values()) {
+            if (category != PurchaseCategory.ALL) {
+                double total = budgetManager.calculateExpenseTotalByCategory(category);
+                expensesByCategory.put(category.name().charAt(0) + category.name().substring(1).toLowerCase(),
+                        total);
+            }
+        }
+        return expensesByCategory;
     }
 
     private void sortAllPurchases() {
-        List<Transaction> tempPurchases = budgetManager.getPurchases();
+        List<Transaction> purchases = new ArrayList<>(budgetManager.getPurchases());
 
-        if (tempPurchases.isEmpty()) {
-            System.out.println();
-            System.out.println("The purchase list is empty!\n");
+        if (purchases.isEmpty()) {
+            displayEmptyPurchaseListMessage();
             return;
         }
 
-        List<Transaction> purchases = new ArrayList<>(tempPurchases);
-        purchases.sort(Comparator.comparingDouble(Transaction::getAmount).reversed());
+        sortPurchasesByAmountDescending(purchases);
+        displaySortedPurchases(purchases, "All");
+        displayTotalExpense();
+    }
 
-        System.out.println();
-        System.out.println("All:");
-
-        for (Transaction purchase : purchases) {
-            System.out.println(purchase.getName() + " $" + String.format("%.2f", purchase.getAmount()));
-        }
+    private void displayTotalExpense() {
         System.out.println("Total sum: $" + String.format("%.2f", budgetManager.calculateExpenseTotal()));
     }
 
+    private void displaySortedPurchases(List<Transaction> purchases, String header) {
+        System.out.println("\n" + header + ":");
+        for (Transaction purchase : purchases) {
+            System.out.println(purchase.getName() + " $" + String.format("%.2f", purchase.getAmount()));
+        }
+    }
+
+    private void sortPurchasesByAmountDescending(List<Transaction> purchases) {
+
+        purchases.sort(Comparator.comparingDouble(Transaction::getAmount).reversed());
+    }
+
+    private void displayEmptyPurchaseListMessage() {
+        System.out.println("\nThe purchase list is empty!");
+    }
+
     private void printSortingMenu() {
-        System.out.println("How do you want to sort?\n" +
-                "1) Sort all purchases\n" +
-                "2) Sort by type\n" +
-                "3) Sort certain type\n" +
-                "4) Back");
+        System.out.println("""
+
+                How do you want to sort?
+                1) Sort all purchases
+                2) Sort by type
+                3) Sort certain type
+                4) Back""");
     }
 
     private void loadPurchases() {
-
-        //java.util.Locale.setDefault(Locale.US);
         List<String> loadedData = fileHandler.load();
-        double incomeAmount;
-        List<Transaction> purchases = new ArrayList<>();
-        budgetManager = new BudgetManager();
+        budgetManager = new BudgetManager(); // Reset the budget manager
 
+        processLoadedData(loadedData);
+
+        System.out.println("\nPurchases were loaded!");
+    }
+
+    private void processLoadedData(List<String> loadedData) {
         for (String data : loadedData) {
-            if (data.equals(fileHandler.getSeparator())) {
+            if (isSeparator(data)) {
                 continue;
-            } else if (data.startsWith("Income")) {
-                incomeAmount = Double.parseDouble(data.split(fileHandler.getDelimiter())[1]);
-                budgetManager.addIncome("income", incomeAmount);
+            }
+
+            if (isIncomeData(data)) {
+                processIncomeData(data);
             } else {
-                String[] transactionData = data.split(fileHandler.getDelimiter());
-                String name = transactionData[0];
-                double amount = Double.parseDouble(transactionData[3]);
-                budgetManager.addPurchase(name, amount, PurchaseCategory.valueOf(transactionData[1]));
+                processTransactionData(data);
             }
         }
+    }
 
-        System.out.println();
-        System.out.println("Purchases were loaded!");
+    private void processTransactionData(String data) {
+        String[] transactionData = data.split(fileHandler.getDelimiter());
+        String name = transactionData[0];
+        PurchaseCategory category = PurchaseCategory.valueOf(transactionData[1]);
+        double amount = Double.parseDouble(transactionData[3]);
+
+        budgetManager.addPurchase(name, amount, category);
+    }
+
+    private void processIncomeData(String data) {
+        double incomeAmount = parseIncomeAmount(data);
+        budgetManager.addIncome(INCOME_LABEL, incomeAmount);
+    }
+
+    private double parseIncomeAmount(String data) {
+        String[] splitData = data.split(fileHandler.getDelimiter());
+        return Double.parseDouble(splitData[1]);
+    }
+
+    private boolean isIncomeData(String data) {
+        return data.startsWith(INCOME_LABEL);
+    }
+
+    private boolean isSeparator(String data) {
+        return data.equals(fileHandler.getSeparator());
     }
 
     private void savePurchases() {
-        String filename = "purchases.txt";
-        List<Transaction> purchases = budgetManager.getPurchases();
-        double income = budgetManager.getTotalIncome();
+        List<Transaction> purchases = fetchPurchases(PurchaseCategory.ALL);
+        double income = fetchIncome();
 
-        fileHandler.save(filename, purchases, income);
+        saveDataToFile(purchases, income);
+        displaySaveConfirmation();
+    }
 
-        System.out.println();
-        System.out.println("Purchases were saved!");
+    private void saveDataToFile(List<Transaction> purchases, double income) {
+        fileHandler.save(BudgetManagerApp.FILENAME, purchases, income);
+    }
+
+    private void displaySaveConfirmation() {
+        System.out.println("\nPurchases were saved!");
+    }
+
+    private double fetchIncome() {
+        return budgetManager.getTotalIncome();
     }
 
     private void displayBalance() {
-        System.out.println();
-        System.out.println("Balance: $" + budgetManager.calculateBalance());
+        System.out.println("\nBalance: $" + budgetManager.calculateBalance());
     }
 
     private void listPurchases() {
-
         while (true) {
-            System.out.println();
             displayListOfPurchaseMenu();
 
             int purchaseType = console.readPurchaseType();
-            if (purchaseType == 6) {
-                return;
+            if (purchaseType == LIST_BACK_OPTION) {
+                break; // Exit the loop if the back option is selected
             }
 
             PurchaseCategory category = getPurchaseType(purchaseType);
-
-            List<Transaction> purchases;
-            if (category == PurchaseCategory.ALL) {
-                purchases = budgetManager.getPurchases();
-            } else {
-                purchases = budgetManager.getPurchasesByCategory(category);
-            }
+            List<Transaction> purchases = fetchPurchases(category);
 
             if (purchases.isEmpty()) {
-                System.out.println();
-                System.out.println("The purchase list is empty");
-                return;
+                System.out.println("\nThe purchase list is empty");
+                continue; // Continue looping to allow another choice
             }
 
-            System.out.println();
-            System.out.println(category.name());
+            displayPurchases(category, purchases);
+            displayTotalSum(category);
+        }
+    }
 
-            for (Transaction purchase : purchases) {
-                System.out.println(purchase.getName() + " $" + String.format("%.2f", purchase.getAmount()));
-                //System.out.println(purchase.getName() + " $" + purchase.getAmount());
-            }
+    private void displayTotalSum(PurchaseCategory category) {
+        double totalSum = (category == PurchaseCategory.ALL)
+                ? budgetManager.calculateExpenseTotal()
+                : budgetManager.calculateExpenseTotalByCategory(category);
 
-            if (category == PurchaseCategory.ALL) {
-                System.out.println("Total sum: $" + budgetManager.calculateExpenseTotal());
-            } else {
-                System.out.println("Total sum: $" + budgetManager.calculateExpenseTotalByCategory(category));
-            }
+        System.out.println("Total sum: $" + String.format("%.2f", totalSum));
+    }
+
+    private void displayPurchases(PurchaseCategory category, List<Transaction> purchases) {
+        System.out.println("\n" + category.name());
+        for (Transaction purchase : purchases) {
+            System.out.println(purchase.getName() + " $" + String.format("%.2f", purchase.getAmount()));
+        }
+    }
+
+    private List<Transaction> fetchPurchases(PurchaseCategory category) {
+        if (category == PurchaseCategory.ALL) {
+            return budgetManager.getPurchases();
+        } else {
+            return budgetManager.getPurchasesByCategory(category);
         }
     }
 
     private void displayListOfPurchaseMenu() {
-        System.out.println();
-        System.out.println("Choose the type of purchases\n" +
-                "1) Food\n" +
-                "2) Clothes\n" +
-                "3) Entertainment\n" +
-                "4) Other\n" +
-                "5) All\n" +
-                "6) Back");
+        System.out.println("""
+
+                Choose the type of purchases
+                1) Food
+                2) Clothes
+                3) Entertainment
+                4) Other
+                5) All
+                6) Back""");
     }
 
     private void addPurchase() {
@@ -297,24 +408,35 @@ public class BudgetManagerApp {
             displayPurchaseTypeMenu();
 
             int purchaseType = console.readPurchaseType();
-
-            if (purchaseType == 5) {
-                return;
+            if (purchaseType == BACK_OPTION) {
+                break; // Exit the loop if the back option is selected
             }
 
             PurchaseCategory category = getPurchaseType(purchaseType);
-
-            System.out.println();
-            String purchaseNamePrompt = "Enter purchase name:";
-            String purchaseAmountPrompt = "Enter its price:";
-            String purchaseAddMessage = "Purchase was added!";
-
-            String purchaseName = console.readPurchaseName(purchaseNamePrompt);
-            double purchaseAmount = console.readPurchaseAmount(purchaseAmountPrompt);
-            budgetManager.addPurchase(purchaseName, purchaseAmount, category);
-
-            System.out.println(purchaseAddMessage);
+            if (category != null) {
+                handlePurchase(category);
+            } else {
+                System.out.println("Invalid purchase type selected!");
+            }
         }
+    }
+
+    private void handlePurchase(PurchaseCategory category) {
+        String purchaseName = promptForPurchaseName();
+        double purchaseAmount = promptForPurchaseAmount();
+
+        budgetManager.addPurchase(purchaseName, purchaseAmount, category);
+        System.out.println("Purchase was added!");
+    }
+
+    private double promptForPurchaseAmount() {
+        String purchaseAmountPrompt = "Enter its price:";
+        return console.readPurchaseAmount(purchaseAmountPrompt);
+    }
+
+    private String promptForPurchaseName() {
+        String purchaseNamePrompt = "Enter purchase name:";
+        return console.readPurchaseName(purchaseNamePrompt);
     }
 
     private PurchaseCategory getPurchaseType(int purchaseType) {
@@ -328,19 +450,19 @@ public class BudgetManagerApp {
     }
 
     private void displayPurchaseTypeMenu() {
-        System.out.println();
-        System.out.println("Choose the type of purchase\n" +
-                "1) Food\n" +
-                "2) Clothes\n" +
-                "3) Entertainment\n" +
-                "4) Other\n" +
-                "5) Back");
+        System.out.println("""
+
+                Choose the type of purchase
+                1) Food
+                2) Clothes
+                3) Entertainment
+                4) Other
+                5) Back""");
     }
 
     private void addIncome() {
-        System.out.println();
         String incomePrompt = "Enter income";
-        String incomeAddMessage = "Income was added!";
+        String incomeAddMessage = "\nIncome was added!";
 
         double incomeAmount = console.readIncome(incomePrompt);
         budgetManager.addIncome("income", incomeAmount);
