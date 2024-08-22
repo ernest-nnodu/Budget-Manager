@@ -39,10 +39,6 @@ public class BudgetManagerApp {
         }
     }
 
-    enum PurchaseTypeMenuOption {
-
-    }
-
     private BudgetManager budgetManager;
     private final Console console;
     private final FileHandler fileHandler;
