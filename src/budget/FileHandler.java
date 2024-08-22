@@ -3,47 +3,67 @@ package budget;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class FileHandler {
 
-    private final String delimiter = ",";
-    private final String separator = "-----";
+    private static final String DELIMITER = ",";
+    private static final String SEPARATOR = "-----";
+    private static final String DEFAULT_FILENAME = "purchases.txt";
 
     public String getDelimiter() {
-        return delimiter;
+        return DELIMITER;
     }
 
     public String getSeparator() {
-        return separator;
+        return SEPARATOR;
     }
 
+    // Save transactions and total income to the file
     public void save(String filename, List<Transaction> transactions, double totalIncome) {
         File fileToSave = new File(filename);
 
-        try(PrintWriter writer = new PrintWriter(fileToSave)) {
-            transactions.forEach(e -> writer.println(e.getName() + delimiter
-            + e.getCategory() + delimiter + e.getType() + delimiter + e.getAmount()));
-            writer.println(separator);
-            writer.println("Income," + totalIncome);
+        try (PrintWriter writer = new PrintWriter(fileToSave)) {
+            for (Transaction transaction : transactions) {
+                writer.println(transaction.getName() + DELIMITER +
+                        transaction.getCategory() + DELIMITER +
+                        transaction.getType() + DELIMITER +
+                        transaction.getAmount());
+            }
+            writer.println(SEPARATOR);
+            writer.println("Income" + DELIMITER + totalIncome);
         } catch (IOException exception) {
-            System.out.println(exception.getMessage());
+            System.out.println("Failed to save data to file: " + exception.getMessage());
+            // Optionally, log the exception or take additional recovery steps
         }
     }
 
-    public List<String> load() {
+    // Load transaction data from the file
+    public List<String> load(String filename) {
         List<String> data = new ArrayList<>();
-        File transactionFile = new File("purchases.txt");
+        File transactionFile = new File(filename);
 
-        try(Scanner scanner = new Scanner(transactionFile)) {
-            while (scanner.hasNext()) {
+        if (!transactionFile.exists()) {
+            System.out.println("File not found: " + filename);
+            return data;
+        }
+
+        try (Scanner scanner = new Scanner(transactionFile)) {
+            while (scanner.hasNextLine()) {
                 data.add(scanner.nextLine());
             }
-
         } catch (IOException exception) {
-            System.out.println(exception.getMessage());
+            System.out.println("Failed to load data from file: " + exception.getMessage());
+            // Optionally, log the exception or take additional recovery steps
         }
 
         return data;
+    }
+
+    // Overloaded method to load using the default filename
+    public List<String> load() {
+        return load(DEFAULT_FILENAME);
     }
 }
